@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refresh & Content Opportunity Scoring — FlyRank ML Internship Capstone</title>
+<style>
+  :root {
+    --ink: #1c1f26;
+    --paper: #faf9f6;
+    --rule: #d8d4cb;
+    --accent: #2f5d50;
+    --accent-soft: #e7efe9;
+    --muted: #6b6558;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    line-height: 1.65;
+    font-size: 17px;
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  header.masthead {
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 24px;
+    margin-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  h1.title {
+    font-size: 2.3rem;
+    line-height: 1.15;
+    margin: 0 0 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .byline {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+
+  .byline a { color: var(--accent); }
+
+  .abstract-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 20px 24px;
+    margin: 36px 0;
+    border-radius: 2px;
+  }
+
+  .abstract-box h2 {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+
+  .abstract-box p { margin: 0; font-size: 16px; }
+
+  h2.section {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 10px;
+    margin: 56px 0 22px;
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    margin: 28px 0 8px;
+    color: var(--ink);
+  }
+
+  p { margin: 0 0 16px; }
+
+  .fill {
+    background: #fff3d6;
+    border: 1px dashed #c9a227;
+    padding: 2px 6px;
+    font-family: var(--mono);
+    font-size: 0.85em;
+    color: #7a5c00;
+    border-radius: 3px;
+  }
+
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  li { margin-bottom: 6px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 15px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  figure {
+    margin: 24px 0;
+    padding: 0;
+  }
+  figure img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+  }
+  figcaption {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .metric-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .metric {
+    flex: 1;
+    min-width: 140px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .metric .num {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .metric .label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  code {
+    font-family: var(--mono);
+    background: #eeeae0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .callout {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--muted);
+    padding: 14px 18px;
+    margin: 20px 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  footer {
+    margin-top: 70px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  a { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    h1.title { font-size: 1.7rem; }
+    .metric-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">FlyRank ML Internship — Capstone Research Paper</div>
+    <h1 class="title">Refresh &amp; Content Opportunity Scoring: A Ranked Action Engine for Search Content Portfolios</h1>
+    <div class="byline">
+      <span>Saqib Khan</span>
+      <span>·</span>
+      <span>BS Computer Science (AI/ML), NUML Islamabad</span>
+      <span>·</span>
+      <a href="https://github.com/saqib0-cpu/flyrank-ml-internship">GitHub Repository</a>
+    </div>
+  </header>
+
+  <div class="abstract-box">
+    <h2>Abstract</h2>
+    <p>
+      Content teams managing large search-driven portfolios need a repeatable way to decide which pages to protect, rewrite, or retire, rather than relying on manual review of every asset.
+      This work builds a content refresh and opportunity scoring system on the FlyRank Internship Warehouse — a pseudonymized, multi-client dataset of <span class="fill">78.8M</span> daily performance rows spanning January 2025 to June 2026.
+      Pages are scored using two independent methods on the same time-windowed feature set: a transparent rule-based baseline built on click and ranking-position momentum, and a gradient-boosted classifier trained to predict future decline using a held-out future window.
+      On a stratified test split, the model achieved an F1 score of <strong>0.60</strong> versus <strong>0.15</strong> for the rule-based baseline — nearly a fourfold improvement — with recent click-through rate emerging as the single dominant predictor, responsible for over three-quarters of the model's decision weight.
+      The result is a ranked, reason-coded action list — not a proof of causal search-engine behavior, but a decision-support tool for prioritizing where content review effort should go first.
+    </p>
+  </div>
+
+  <h2 class="section">01 · Introduction</h2>
+  <p>
+    Large content portfolios accumulate pages faster than any team can manually audit. Some pages quietly decay in visibility, some recover after algorithm shifts or seasonal cycles, and some are simply never worth the rewrite effort they'd need. The decision this work supports is narrow and practical: <strong>given a page's recent performance history, which action — protect, rewrite, monitor, improve, or review — deserves attention first?</strong>
+  </p>
+  <p>
+    Rather than treating this as a black-box prediction problem, the approach here deliberately builds a simple, explainable baseline first, and only introduces a machine learning model to see whether it meaningfully outperforms that baseline on the same evidence. This mirrors how a real content operations team would want to adopt such a system — trusting a rule they can audit before trusting a model they can't.
+  </p>
+
+  <h2 class="section">02 · Data</h2>
+  <p>
+    The analysis uses the <strong>FlyRank Internship Warehouse (release v20260703)</strong>, a pseudonymized star-schema export covering:
+  </p>
+  <table>
+    <tr><th>Table</th><th>Rows</th><th>Role in this analysis</th></tr>
+    <tr><td><code>fact_content_daily_performance</code></td><td>78,835,655</td><td>Primary source — daily clicks, impressions, position, and engagement per content item</td></tr>
+    <tr><td><code>dim_content</code></td><td>519,606</td><td>Content-level attributes — type, search volume, competition, word count</td></tr>
+    <tr><td><code>dim_clients</code></td><td>104</td><td>Used only to filter clients with valid Search Console access</td></tr>
+    <tr><td><code>fact_content_query_90d</code></td><td>2,414,248</td><td>Query-level CTR context (supporting analysis)</td></tr>
+  </table>
+  <p><strong>Date windows used:</strong></p>
+  <ul>
+    <li>Window A (baseline period): 2025-08 to 2025-10</li>
+    <li>Window B (recent period, feature basis): 2025-11 to 2026-01</li>
+    <li>Window C (future period, label basis for the ML model): 2026-02 to 2026-04</li>
+  </ul>
+  <p><strong>Exclusions:</strong> rows where <code>gsc_data_available</code> was false were dropped, since these clients have no search performance signal to score against. No client identifiers, content URLs, query text, or raw exports appear anywhere in this paper or its supporting repository — all identifiers used are the dataset's own salted, pseudonymized hash keys.</p>
+
+  <h2 class="section">03 · Methodology</h2>
+
+  <h3>Feature construction</h3>
+  <p>For every pseudonymized content item, Windows A and B were aggregated into a single feature row:</p>
+  <ul>
+    <li><code>clicks_delta_pct</code> — percentage change in clicks between Window A and Window B</li>
+    <li><code>position_delta</code> — change in average search position (positive = improved ranking)</li>
+    <li><code>ctr_a</code>, <code>ctr_b</code> — observed click-through rate in each window</li>
+    <li><code>search_volume</code>, <code>competition_level</code>, <code>word_count</code> — static content attributes from <code>dim_content</code></li>
+  </ul>
+
+  <h3>Label definition (for the ML model only)</h3>
+  <p>
+    A binary <code>will_decline</code> label was defined using Window C — a period entirely after the feature windows — as: clicks fell by more than 15% from Window B to Window C. This label is never derived from the same window as the features, which is the core leakage safeguard in this design.
+  </p>
+
+  <h3>Baseline: rule-based classification</h3>
+  <p>A transparent, auditable rule set assigns each page to one of five states based on click momentum and position movement:</p>
+  <table>
+    <tr><th>Status</th><th>Rule</th><th>Recommended action</th></tr>
+    <tr><td>Growing</td><td>Clicks up &gt;20% and position improved</td><td>Protect</td></tr>
+    <tr><td>Declining</td><td>Clicks down &gt;20% and position worsened</td><td>Rewrite</td></tr>
+    <tr><td>Recovering</td><td>Clicks up &gt;10% despite worse position</td><td>Monitor</td></tr>
+    <tr><td>Stagnant</td><td>Click change within ±10%</td><td>Improve (metadata/CTR)</td></tr>
+    <tr><td>Volatile</td><td>None of the above</td><td>Review</td></tr>
+  </table>
+
+  <h3>Model: gradient-boosted classifier</h3>
+  <p>
+    A <code>GradientBoostingClassifier</code> was trained on the same feature set to predict <code>will_decline</code>, using an 80/20 stratified split. Because the label already draws on a strictly future window relative to the features, the split does not need to be additionally time-ordered — the leakage boundary is enforced at the label-definition stage, not the split stage.
+  </p>
+
+  <h2 class="section">04 · Results</h2>
+
+  <div class="metric-row">
+    <div class="metric">
+      <div class="num">0.15</div>
+      <div class="label">Baseline F1 (rule-based)</div>
+    </div>
+    <div class="metric">
+      <div class="num">0.60</div>
+      <div class="label">Model F1 (gradient boosting)</div>
+    </div>
+    <div class="metric">
+      <div class="num">88%</div>
+      <div class="label">Overall model accuracy</div>
+    </div>
+  </div>
+
+  <figure>
+    <img src="assets/model_vs_baseline.png" alt="Model versus baseline F1 comparison chart">
+    <figcaption>Figure 1 — F1 score of the gradient-boosted model against the rule-based baseline, evaluated on the identical held-out split.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="assets/feature_importance.png" alt="Feature importance chart">
+    <figcaption>Figure 2 — Relative importance of each feature in the gradient-boosted model's decline prediction.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="assets/clicks_delta_distribution.png" alt="Distribution of click change percentage across all pages">
+    <figcaption>Figure 3 — Distribution of click-change percentage across the scored content portfolio, Window A to Window B.</figcaption>
+  </figure>
+
+  <h3>Feature importance — confirmed ranking</h3>
+  <table>
+    <tr><th>Rank</th><th>Feature</th><th>Importance</th></tr>
+    <tr><td>1</td><td><code>ctr_b</code> — click-through rate, recent window</td><td>77.9%</td></tr>
+    <tr><td>2</td><td><code>word_count</code> — content length</td><td>11.0%</td></tr>
+    <tr><td>3</td><td><code>position_delta</code> — ranking position change</td><td>4.4%</td></tr>
+    <tr><td>4</td><td><code>clicks_delta_pct</code> — click momentum</td><td>3.7%</td></tr>
+    <tr><td>5</td><td><code>competition_level</code></td><td>1.8%</td></tr>
+    <tr><td>6</td><td><code>ctr_a</code> — click-through rate, prior window</td><td>0.9%</td></tr>
+    <tr><td>7</td><td><code>search_volume</code></td><td>0.3%</td></tr>
+  </table>
+
+  <p>
+    Recent click-through rate (<code>ctr_b</code>) overwhelmingly dominates the model's decision-making, accounting for more than three-quarters of total feature importance — far ahead of ranking-position movement or click momentum, which the rule-based baseline relies on most heavily. This suggests that <strong>how efficiently a page converts its current visibility into clicks</strong> is a stronger early-warning signal for future decline than the position or click trend itself. Content length is a distant second signal, while raw search volume and competition level contribute comparatively little on their own.
+  </p>
+  <p>
+    On the identical held-out split, the gradient-boosted model reached an F1 score of <strong>0.60</strong> for the decline class (precision 0.70, recall 0.52, 88% overall accuracy) against a rule-based baseline F1 of <strong>0.154</strong> — nearly a fourfold improvement. The rule-based baseline's low score reflects that momentum-only rules (click and position change) miss most true declines that show up first as a CTR gap rather than a clicks or position swing. This gap is itself a useful finding: it argues for monitoring CTR efficiency as an earlier warning signal, not just raw click or position trend, before a page's traffic visibly drops.
+  </p>
+
+  <h2 class="section">05 · Limitations &amp; Honest Framing</h2>
+  <div class="callout">
+    <p style="margin:0 0 10px;">This work makes no claim to reveal or reproduce Google's ranking algorithm, nor to prove a causal link between any content action and a ranking or traffic outcome.</p>
+    <p style="margin:0 0 10px;">All findings should be read as <strong>observed and directional</strong> — patterns present in this specific dataset and time window, not universal rules.</p>
+    <p style="margin:0;">The scoring system is intended as <strong>decision support</strong>: a way to prioritize manual review, not a substitute for it. Content decisions should combine this ranking with domain judgment about brand, legal, and editorial context that the model cannot see.</p>
+  </div>
+  <p>
+    Additional caveats: the dataset is an unbalanced panel (clients have different history depths), which can bias momentum calculations for newer clients; the 15% decline threshold is a design choice, not a validated business rule; and AI-referral session volume (<code>sessions_ai</code>) was too sparse in this window to model reliably and was excluded from the feature set for that reason. The strong dominance of <code>ctr_b</code> in feature importance also deserves scrutiny rather than uncritical acceptance — since <code>ctr_b</code> is partly derived from the same window as some baseline signals, its outsized weight may partly reflect that overlap rather than genuine predictive superiority. This is flagged here rather than presented as a clean result.
+  </p>
+
+  <h2 class="section">06 · Ranked Recommendations</h2>
+  <p>Based on the scoring output, the following action playbook is recommended for a content team working through this portfolio:</p>
+  <ol>
+    <li><strong>Protect first:</strong> Growing pages with strong position gains — do not touch these; monitor only for stability.</li>
+    <li><strong>Rewrite highest-priority declines first:</strong> Declining pages with both falling clicks and worsening position, ranked by magnitude of click loss — these represent the clearest signal of content-relevance decay.</li>
+    <li><strong>Fix CTR before rewriting content:</strong> Stagnant pages with a large gap between actual and position-expected CTR are often a metadata/title problem, not a content problem — cheaper to fix first.</li>
+    <li><strong>Watch recovering pages, don't rewrite them:</strong> Pages regaining clicks despite worse position may be recovering organically; premature rewrites can interrupt that.</li>
+    <li><strong>Deprioritize volatile, low-volume pages:</strong> Where the signal is noisy and search volume is low, review on a longer cycle rather than urgent action.</li>
+  </ol>
+
+  <h2 class="section">07 · Reproducibility</h2>
+  <ul>
+    <li>Capstone notebook: <a href="work/capstone_notebook.ipynb">work/capstone_notebook.ipynb</a></li>
+    <li>Full repository: <a href="https://github.com/saqib0-cpu/flyrank-ml-internship">github.com/saqib0-cpu/flyrank-ml-internship</a></li>
+    <li>All weekly assignment notebooks are included under <code>work/</code> in the repository above.</li>
+  </ul>
+
+  <h2 class="section">08 · Acknowledgments &amp; Data Credit</h2>
+  <p>Built on the <a href="https://flyrank.ai">FlyRank ML Internship dataset</a>.</p>
+
+  <footer>
+    <span>Saqib Khan · NUML Islamabad</span>
+    <span>Deployed via GitHub Pages</span>
+  </footer>
+
+</div>
+</body>
+</html>
