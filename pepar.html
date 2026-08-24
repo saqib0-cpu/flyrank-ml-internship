@@ -4,14 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Refresh &amp; Content Opportunity Scoring — FlyRank ML Internship Capstone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1c1f26;
-    --paper: #faf9f6;
-    --rule: #d8d4cb;
-    --accent: #2f5d50;
-    --accent-soft: #e7efe9;
-    --muted: #6b6558;
+    --paper: #faf8f2;
+    --paper-raised: #fffefb;
+    --rule: #ddd6c5;
+    --rule-strong: #1c1f26;
+    --muted: #6f6a5c;
+
+    /* Signature system: the paper's own five-status action vocabulary,
+       reused everywhere a status or recommendation appears. */
+    --protect: #2f6b52;
+    --protect-soft: #e6efe9;
+    --rewrite: #a8481f;
+    --rewrite-soft: #f5e8e0;
+    --monitor: #33517d;
+    --monitor-soft: #e5eaf2;
+    --improve: #9c7519;
+    --improve-soft: #f3ecdb;
+    --review: #6f6a5c;
+    --review-soft: #ece9e0;
+
+    --serif-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+    --serif-body: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
     --mono: 'IBM Plex Mono', 'Courier New', monospace;
   }
 
@@ -21,21 +40,22 @@
     margin: 0;
     background: var(--paper);
     color: var(--ink);
-    font-family: 'Georgia', 'Iowan Old Style', serif;
-    line-height: 1.65;
+    font-family: var(--serif-body);
+    line-height: 1.7;
     font-size: 17px;
+    -webkit-font-smoothing: antialiased;
   }
 
   .wrap {
-    max-width: 780px;
+    max-width: 760px;
     margin: 0 auto;
-    padding: 60px 24px 100px;
+    padding: 56px 24px 110px;
   }
 
   header.masthead {
-    border-bottom: 3px solid var(--ink);
-    padding-bottom: 24px;
-    margin-bottom: 40px;
+    border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: 22px;
+    margin-bottom: 8px;
   }
 
   .eyebrow {
@@ -43,74 +63,150 @@
     font-size: 12px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 10px;
+    color: var(--protect);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--protect);
+    display: inline-block;
+    border-radius: 1px;
   }
 
   h1.title {
-    font-size: 2.3rem;
-    line-height: 1.15;
-    margin: 0 0 14px;
-    font-weight: 700;
+    font-family: var(--serif-display);
+    font-size: 2.5rem;
+    font-optical-sizing: auto;
+    line-height: 1.1;
+    margin: 0 0 16px;
+    font-weight: 600;
     letter-spacing: -0.01em;
   }
 
   .byline {
     font-family: var(--mono);
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--muted);
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 18px;
+    gap: 6px 16px;
+  }
+  .byline a { color: var(--ink); text-decoration-color: var(--rule); }
+
+  .meta-strip {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    padding-top: 14px;
+    margin-top: 14px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
   }
 
-  .byline a { color: var(--accent); }
+  /* Status legend — the visual key readers carry through the whole paper */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 34px 0 40px;
+    padding: 16px 18px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+  }
+  .legend-title {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    width: 100%;
+    margin-bottom: 2px;
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.01em;
+    padding: 3px 9px 3px 8px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .chip::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .chip.protect { background: var(--protect-soft); color: var(--protect); }
+  .chip.protect::before { background: var(--protect); }
+  .chip.rewrite { background: var(--rewrite-soft); color: var(--rewrite); }
+  .chip.rewrite::before { background: var(--rewrite); }
+  .chip.monitor { background: var(--monitor-soft); color: var(--monitor); }
+  .chip.monitor::before { background: var(--monitor); }
+  .chip.improve { background: var(--improve-soft); color: var(--improve); }
+  .chip.improve::before { background: var(--improve); }
+  .chip.review { background: var(--review-soft); color: var(--review); }
+  .chip.review::before { background: var(--review); }
 
   .abstract-box {
-    background: var(--accent-soft);
-    border-left: 4px solid var(--accent);
-    padding: 20px 24px;
-    margin: 36px 0;
+    background: var(--paper-raised);
+    border-left: 4px solid var(--protect);
+    padding: 22px 26px;
+    margin: 0 0 40px;
     border-radius: 2px;
   }
 
   .abstract-box h2 {
     font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--accent);
-    margin: 0 0 10px;
+    color: var(--protect);
+    margin: 0 0 12px;
   }
 
   .abstract-box p { margin: 0; font-size: 16px; }
 
   h2.section {
     font-family: var(--mono);
-    font-size: 13px;
+    font-size: 12.5px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--accent);
-    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule-strong);
     padding-bottom: 10px;
-    margin: 56px 0 22px;
+    margin: 60px 0 22px;
   }
 
   h3 {
-    font-size: 1.05rem;
-    margin: 28px 0 8px;
+    font-family: var(--serif-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    margin: 30px 0 8px;
     color: var(--ink);
   }
 
   p { margin: 0 0 16px; }
 
   .fill {
-    background: #fff3d6;
-    border: 1px dashed #c9a227;
+    background: #fbeecb;
+    border: 1px dashed #b3891f;
     padding: 2px 6px;
     font-family: var(--mono);
     font-size: 0.85em;
-    color: #7a5c00;
+    color: #6b4f00;
     border-radius: 3px;
   }
 
@@ -125,19 +221,33 @@
   }
   th, td {
     text-align: left;
-    padding: 8px 10px;
+    padding: 9px 10px;
     border-bottom: 1px solid var(--rule);
   }
   th {
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--muted);
   }
+  td code, li code, p code { font-size: 0.88em; }
+
+  .status-cell { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; }
+  .status-cell::before { content: ""; width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  tr[data-status="protect"] .status-cell { color: var(--protect); }
+  tr[data-status="protect"] .status-cell::before { background: var(--protect); }
+  tr[data-status="rewrite"] .status-cell { color: var(--rewrite); }
+  tr[data-status="rewrite"] .status-cell::before { background: var(--rewrite); }
+  tr[data-status="monitor"] .status-cell { color: var(--monitor); }
+  tr[data-status="monitor"] .status-cell::before { background: var(--monitor); }
+  tr[data-status="improve"] .status-cell { color: var(--improve); }
+  tr[data-status="improve"] .status-cell::before { background: var(--improve); }
+  tr[data-status="review"] .status-cell { color: var(--review); }
+  tr[data-status="review"] .status-cell::before { background: var(--review); }
 
   figure {
-    margin: 24px 0;
+    margin: 26px 0;
     padding: 0;
   }
   figure img {
@@ -145,38 +255,47 @@
     display: block;
     border: 1px solid var(--rule);
     border-radius: 3px;
+    background: var(--paper-raised);
   }
   figcaption {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--muted);
-    margin-top: 8px;
+    margin-top: 9px;
+    line-height: 1.5;
   }
 
   .metric-row {
     display: flex;
-    gap: 16px;
+    gap: 14px;
     flex-wrap: wrap;
-    margin: 20px 0;
+    margin: 22px 0 28px;
   }
   .metric {
     flex: 1;
-    min-width: 140px;
-    background: #fff;
+    min-width: 150px;
+    background: var(--paper-raised);
     border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 14px 16px;
+    border-top: 3px solid var(--rule-strong);
+    border-radius: 2px;
+    padding: 16px 18px;
   }
+  .metric.is-baseline { border-top-color: var(--review); }
+  .metric.is-model { border-top-color: var(--rewrite); }
+  .metric.is-grouped { border-top-color: var(--protect); }
   .metric .num {
-    font-family: var(--mono);
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--accent);
+    font-family: var(--serif-display);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
   }
   .metric .label {
-    font-size: 12px;
+    font-family: var(--mono);
+    font-size: 11.5px;
     color: var(--muted);
-    margin-top: 4px;
+    margin-top: 8px;
+    line-height: 1.4;
   }
 
   code {
@@ -188,21 +307,52 @@
   }
 
   .callout {
-    background: #fff;
+    background: var(--paper-raised);
     border: 1px solid var(--rule);
     border-left: 4px solid var(--muted);
-    padding: 14px 18px;
+    padding: 16px 20px;
     margin: 20px 0;
-    font-size: 15px;
-    color: var(--muted);
+    font-size: 15.5px;
+    color: var(--ink);
   }
+  .callout p { color: var(--ink); }
+  .callout p:first-child { margin-top: 0; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout strong { color: var(--ink); }
 
-  footer {
-    margin-top: 70px;
-    padding-top: 24px;
-    border-top: 1px solid var(--rule);
+  /* Recommendations list — each item carries its action's color, echoing the legend */
+  .action-list { list-style: none; padding: 0; margin: 22px 0; counter-reset: action; }
+  .action-list li {
+    counter-increment: action;
+    position: relative;
+    padding: 14px 18px 14px 52px;
+    margin-bottom: 10px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-left-width: 4px;
+    border-radius: 2px;
+  }
+  .action-list li::before {
+    content: counter(action);
+    position: absolute;
+    left: 16px;
+    top: 14px;
     font-family: var(--mono);
     font-size: 12px;
+    color: var(--muted);
+  }
+  .action-list li[data-status="protect"] { border-left-color: var(--protect); }
+  .action-list li[data-status="rewrite"] { border-left-color: var(--rewrite); }
+  .action-list li[data-status="monitor"] { border-left-color: var(--monitor); }
+  .action-list li[data-status="improve"] { border-left-color: var(--improve); }
+  .action-list li[data-status="review"] { border-left-color: var(--review); }
+
+  footer {
+    margin-top: 74px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 11.5px;
     color: var(--muted);
     display: flex;
     justify-content: space-between;
@@ -210,11 +360,12 @@
     gap: 10px;
   }
 
-  a { color: var(--accent); }
+  a { color: var(--ink); }
 
   @media (max-width: 600px) {
-    h1.title { font-size: 1.7rem; }
+    h1.title { font-size: 1.9rem; }
     .metric-row { flex-direction: column; }
+    .action-list li { padding-left: 46px; }
   }
 </style>
 </head>
@@ -222,7 +373,7 @@
 <div class="wrap">
 
   <header class="masthead">
-    <div class="eyebrow">FlyRank ML Internship — Capstone Research Paper</div>
+    <div class="eyebrow">FlyRank ML Internship — Capstone Research Paper — Lane 2</div>
     <h1 class="title">Refresh &amp; Content Opportunity Scoring: A Ranked Action Engine for Search Content Portfolios</h1>
     <div class="byline">
       <span>Saqib Khan</span>
@@ -231,14 +382,28 @@
       <span>·</span>
       <a href="https://github.com/saqib0-cpu/flyrank-ml-internship">GitHub Repository</a>
     </div>
+    <div class="meta-strip">
+      <span>~7 min read</span>
+      <span>78.8M rows analyzed</span>
+      <span>Jan 2025 – Jun 2026 dataset window</span>
+    </div>
   </header>
+
+  <div class="legend">
+    <span class="legend-title">Action vocabulary used throughout this paper</span>
+    <span class="chip protect">Protect</span>
+    <span class="chip rewrite">Rewrite</span>
+    <span class="chip monitor">Monitor</span>
+    <span class="chip improve">Improve</span>
+    <span class="chip review">Review</span>
+  </div>
 
   <div class="abstract-box">
     <h2>Abstract</h2>
     <p>
-      Content teams managing large search-driven portfolios need a repeatable way to decide which pages to protect, rewrite, or retire, rather than relying on manual review of every asset.
-      This work builds a content refresh and opportunity scoring system on the FlyRank Internship Warehouse — a pseudonymized, multi-client dataset of <span class="fill">78.8M</span> daily performance rows spanning January 2025 to June 2026.
-      Pages are scored using two independent methods on the same time-windowed feature set: a transparent rule-based baseline built on click and ranking-position momentum, and a gradient-boosted classifier trained to predict future decline using a held-out future window.
+      Agencies managing content across dozens of clients can't manually audit every page every month — someone has to decide, on a rolling basis, which pages get protected, rewritten, or left alone.
+      This capstone was built as Lane 2 (Content Opportunity Scoring) of the FlyRank ML Internship, tackling that exact operational bottleneck: turning raw multi-client search performance data into a ranked, reason-coded action list a content team can actually work from.
+      The system is built on the FlyRank Internship Warehouse — a pseudonymized, multi-client dataset of <span class="fill">78.8M</span> daily performance rows spanning January 2025 to June 2026 — and scores pages using two independent methods on the same time-windowed feature set: a transparent rule-based baseline built on click and ranking-position momentum, and a gradient-boosted classifier trained to predict future decline using a held-out future window.
       On a stratified test split, the model achieved an F1 score of <strong>0.60</strong> versus <strong>0.15</strong> for the rule-based baseline; under a stricter client-grouped split designed to rule out client-level leakage, the measured F1 was <strong>0.507</strong>, with recent click-through rate emerging as the single dominant predictor across both evaluations.
       The result is a ranked, reason-coded action list — not a proof of causal search-engine behavior, but a decision-support tool for prioritizing where content review effort should go first.
     </p>
@@ -246,7 +411,10 @@
 
   <h2 class="section">01 · Introduction</h2>
   <p>
-    Large content portfolios accumulate pages faster than any team can manually audit. Some pages quietly decay in visibility, some recover after algorithm shifts or seasonal cycles, and some are simply never worth the rewrite effort they'd need. The decision this work supports is narrow and practical: <strong>given a page's recent performance history, which action — protect, rewrite, monitor, improve, or review — deserves attention first?</strong>
+    This problem showed up first as a practical one inside FlyRank's own operations: an agency running SEO and content programs for a large roster of clients accumulates far more pages than any team can manually review on a regular cycle. Some pages quietly decay in visibility, some recover after algorithm shifts or seasonal cycles, and some are never worth the rewrite effort they'd need — but without a systematic way to tell these apart, review time goes wherever someone happened to look last, not where it's actually needed.
+  </p>
+  <p>
+    This capstone, built as Lane 2 of the FlyRank ML Internship, turns that operational question into a concrete decision the model supports: <strong>given a page's recent performance history, which action — protect, rewrite, monitor, improve, or review — deserves attention first?</strong>
   </p>
   <p>
     Rather than treating this as a black-box prediction problem, the approach here deliberately builds a simple, explainable baseline first, and only introduces a machine learning model to see whether it meaningfully outperforms that baseline on the same evidence. This mirrors how a real content operations team would want to adopt such a system — trusting a rule they can audit before trusting a model they can't. A later validation pass also turns this same scrutiny back on the model itself, re-testing it under a stricter split and auditing its features for leakage before any recommendation is trusted.
@@ -291,11 +459,11 @@
   <p>A transparent, auditable rule set assigns each page to one of five states based on click momentum and position movement:</p>
   <table>
     <tr><th>Status</th><th>Rule</th><th>Recommended action</th></tr>
-    <tr><td>Growing</td><td>Clicks up &gt;20% and position improved</td><td>Protect</td></tr>
-    <tr><td>Declining</td><td>Clicks down &gt;20% and position worsened</td><td>Rewrite</td></tr>
-    <tr><td>Recovering</td><td>Clicks up &gt;10% despite worse position</td><td>Monitor</td></tr>
-    <tr><td>Stagnant</td><td>Click change within ±10%</td><td>Improve (metadata/CTR)</td></tr>
-    <tr><td>Volatile</td><td>None of the above</td><td>Review</td></tr>
+    <tr data-status="protect"><td><span class="status-cell">Growing</span></td><td>Clicks up &gt;20% and position improved</td><td>Protect</td></tr>
+    <tr data-status="rewrite"><td><span class="status-cell">Declining</span></td><td>Clicks down &gt;20% and position worsened</td><td>Rewrite</td></tr>
+    <tr data-status="monitor"><td><span class="status-cell">Recovering</span></td><td>Clicks up &gt;10% despite worse position</td><td>Monitor</td></tr>
+    <tr data-status="improve"><td><span class="status-cell">Stagnant</span></td><td>Click change within ±10%</td><td>Improve (metadata/CTR)</td></tr>
+    <tr data-status="review"><td><span class="status-cell">Volatile</span></td><td>None of the above</td><td>Review</td></tr>
   </table>
 
   <h3>Model: gradient-boosted classifier</h3>
@@ -311,17 +479,17 @@
   <h2 class="section">04 · Results</h2>
 
   <div class="metric-row">
-    <div class="metric">
+    <div class="metric is-baseline">
       <div class="num">0.15</div>
-      <div class="label">Baseline F1 (rule-based)</div>
+      <div class="label">Baseline F1<br>(rule-based)</div>
     </div>
-    <div class="metric">
+    <div class="metric is-model">
       <div class="num">0.60</div>
-      <div class="label">Model F1 — random split</div>
+      <div class="label">Model F1<br>random split</div>
     </div>
-    <div class="metric">
+    <div class="metric is-grouped">
       <div class="num">0.507</div>
-      <div class="label">Model F1 — client-grouped split</div>
+      <div class="label">Model F1<br>client-grouped split</div>
     </div>
   </div>
 
@@ -356,14 +524,14 @@
     Recent click-through rate (<code>ctr_b</code>) overwhelmingly dominates the model's decision-making, accounting for more than three-quarters of total feature importance — far ahead of ranking-position movement or click momentum, which the rule-based baseline relies on most heavily. This suggests that <strong>how efficiently a page converts its current visibility into clicks</strong> is a stronger early-warning signal for future decline than the position or click trend itself. Content length is a distant second signal, while raw search volume and competition level contribute comparatively little on their own.
   </p>
   <p>
-    On the identical held-out split, the gradient-boosted model reached an F1 score of <strong>0.60</strong> for the decline class (precision 0.70, recall 0.52, 88% overall accuracy) against a rule-based baseline F1 of <strong>0.154</strong>. Under the client-grouped split, the measured F1 was <strong>0.507</strong> — Under the client-grouped split, the measured F1 was 0.507 — lower than the original figure, indicating part of the original score reflected client-level patterns shared across train and test; the grouped-split figure is treated as the more honest estimate of real-world performance.: e.g. "close to the original figure, suggesting the model generalizes across clients rather than memorizing client-specific behavior" or "lower than the original figure, indicating part of the original score reflected client-level patterns shared across train and test; the grouped-split figure is treated as the more honest estimate of real-world performance"]. The rule-based baseline's low score reflects that momentum-only rules (click and position change) miss most true declines that show up first as a CTR gap rather than a clicks or position swing. This gap is itself a useful finding: it argues for monitoring CTR efficiency as an earlier warning signal, not just raw click or position trend, before a page's traffic visibly drops.
+    On the identical held-out split, the gradient-boosted model reached an F1 score of <strong>0.60</strong> for the decline class (precision 0.70, recall 0.52, 88% overall accuracy) against a rule-based baseline F1 of <strong>0.154</strong>. Under the client-grouped split, the measured F1 was <strong>0.507</strong> — lower than the original figure, indicating that part of the original score reflected client-level patterns shared across train and test; the grouped-split figure is treated as the more honest estimate of real-world performance. The rule-based baseline's low score reflects that momentum-only rules (click and position change) miss most true declines that show up first as a CTR gap rather than a clicks or position swing. This gap is itself a useful finding: it argues for monitoring CTR efficiency as an earlier warning signal, not just raw click or position trend, before a page's traffic visibly drops.
   </p>
 
   <h2 class="section">05 · Limitations &amp; Honest Framing</h2>
   <div class="callout">
-    <p style="margin:0 0 10px;">This work makes no claim to reveal or reproduce Google's ranking algorithm, nor to prove a causal link between any content action and a ranking or traffic outcome.</p>
-    <p style="margin:0 0 10px;">All findings should be read as <strong>observed and directional</strong> — patterns present in this specific dataset and time window, not universal rules.</p>
-    <p style="margin:0;">The scoring system is intended as <strong>decision support</strong>: a way to prioritize manual review, not a substitute for it. Content decisions should combine this ranking with domain judgment about brand, legal, and editorial context that the model cannot see.</p>
+    <p>This work makes no claim to reveal or reproduce Google's ranking algorithm, nor to prove a causal link between any content action and a ranking or traffic outcome.</p>
+    <p>All findings should be read as <strong>observed and directional</strong> — patterns present in this specific dataset and time window, not universal rules.</p>
+    <p>The scoring system is intended as <strong>decision support</strong>: a way to prioritize manual review, not a substitute for it. Content decisions should combine this ranking with domain judgment about brand, legal, and editorial context that the model cannot see.</p>
   </div>
   <p>
     Additional caveats: the dataset is an unbalanced panel (clients have different history depths), which can bias momentum calculations for newer clients; the 15% decline threshold is a design choice, not a validated business rule; and AI-referral session volume (<code>sessions_ai</code>) was too sparse in this window to model reliably and was excluded from the feature set for that reason. The strong dominance of <code>ctr_b</code> in feature importance also deserves scrutiny rather than uncritical acceptance — since <code>ctr_b</code> is partly derived from the same window as some baseline signals, its outsized weight may partly reflect that overlap rather than genuine predictive superiority. This is flagged here rather than presented as a clean result.
@@ -374,22 +542,22 @@
 
   <h2 class="section">06 · Ranked Recommendations</h2>
   <p>Based on the scoring output, the following action playbook is recommended for a content team working through this portfolio:</p>
-  <ol>
-    <li><strong>Protect first:</strong> Growing pages with strong position gains — do not touch these; monitor only for stability.</li>
-    <li><strong>Rewrite highest-priority declines first:</strong> Declining pages with both falling clicks and worsening position, ranked by magnitude of click loss — these represent the clearest signal of content-relevance decay.</li>
-    <li><strong>Fix CTR before rewriting content:</strong> Stagnant pages with a large gap between actual and position-expected CTR are often a metadata/title problem, not a content problem — cheaper to fix first.</li>
-    <li><strong>Watch recovering pages, don't rewrite them:</strong> Pages regaining clicks despite worse position may be recovering organically; premature rewrites can interrupt that.</li>
-    <li><strong>Deprioritize volatile, low-volume pages:</strong> Where the signal is noisy and search volume is low, review on a longer cycle rather than urgent action.</li>
+  <ol class="action-list">
+    <li data-status="protect"><strong>Protect first:</strong> Growing pages with strong position gains — do not touch these; monitor only for stability.</li>
+    <li data-status="rewrite"><strong>Rewrite highest-priority declines first:</strong> Declining pages with both falling clicks and worsening position, ranked by magnitude of click loss — these represent the clearest signal of content-relevance decay.</li>
+    <li data-status="improve"><strong>Fix CTR before rewriting content:</strong> Stagnant pages with a large gap between actual and position-expected CTR are often a metadata/title problem, not a content problem — cheaper to fix first.</li>
+    <li data-status="monitor"><strong>Watch recovering pages, don't rewrite them:</strong> Pages regaining clicks despite worse position may be recovering organically; premature rewrites can interrupt that.</li>
+    <li data-status="review"><strong>Deprioritize volatile, low-volume pages:</strong> Where the signal is noisy and search volume is low, review on a longer cycle rather than urgent action.</li>
   </ol>
 
   <h3>Human review and no-go cases</h3>
   <p>
-    Every "rewrite" recommendation requires human sign-off before content is edited or retired. Pages with low search volume carry weaker model signal and warrant extra scrutiny. This system is explicitly <strong>not</strong> intended for: automated deletion or unpublishing of content, auto-generated replacement content without editorial approval, use as sole input for client billing or performance conversations, or application to content types or client verticals outside the training data.
+    Every <span class="chip rewrite" style="vertical-align:1px;">Rewrite</span> recommendation requires human sign-off before content is edited or retired. Pages with low search volume carry weaker model signal and warrant extra scrutiny. This system is explicitly <strong>not</strong> intended for: automated deletion or unpublishing of content, auto-generated replacement content without editorial approval, use as sole input for client billing or performance conversations, or application to content types or client verticals outside the training data.
   </p>
 
   <h3>Monitoring and retrain triggers</h3>
   <p>
-    Recommended ongoing checks: track what share of "declining"-flagged pages show continued click drops in the following window (live precision tracking against the measured 0.70 baseline); watch for feature-importance drift, particularly in <code>ctr_b</code>'s dominance; and retrain on a quarterly cycle regardless of measured performance, since search behavior shifts over time.
+    Recommended ongoing checks: track what share of <span class="chip rewrite" style="vertical-align:1px;">Rewrite</span>-flagged pages show continued click drops in the following window (live precision tracking against the measured 0.70 baseline); watch for feature-importance drift, particularly in <code>ctr_b</code>'s dominance; and retrain on a quarterly cycle regardless of measured performance, since search behavior shifts over time.
   </p>
 
   <h2 class="section">07 · Reproducibility</h2>
