@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Refresh & Content Opportunity Scoring — FlyRank ML Internship Capstone</title>
+<title>Refresh &amp; Content Opportunity Scoring — FlyRank ML Internship Capstone</title>
 <style>
   :root {
     --ink: #1c1f26;
@@ -239,7 +239,7 @@
       Content teams managing large search-driven portfolios need a repeatable way to decide which pages to protect, rewrite, or retire, rather than relying on manual review of every asset.
       This work builds a content refresh and opportunity scoring system on the FlyRank Internship Warehouse — a pseudonymized, multi-client dataset of <span class="fill">78.8M</span> daily performance rows spanning January 2025 to June 2026.
       Pages are scored using two independent methods on the same time-windowed feature set: a transparent rule-based baseline built on click and ranking-position momentum, and a gradient-boosted classifier trained to predict future decline using a held-out future window.
-      On a stratified test split, the model achieved an F1 score of <strong>0.60</strong> versus <strong>0.15</strong> for the rule-based baseline — nearly a fourfold improvement — with recent click-through rate emerging as the single dominant predictor, responsible for over three-quarters of the model's decision weight.
+      On a stratified test split, the model achieved an F1 score of <strong>0.60</strong> versus <strong>0.15</strong> for the rule-based baseline; under a stricter client-grouped split designed to rule out client-level leakage, the measured F1 was <strong>0.507</strong>, with recent click-through rate emerging as the single dominant predictor across both evaluations.
       The result is a ranked, reason-coded action list — not a proof of causal search-engine behavior, but a decision-support tool for prioritizing where content review effort should go first.
     </p>
   </div>
@@ -249,7 +249,7 @@
     Large content portfolios accumulate pages faster than any team can manually audit. Some pages quietly decay in visibility, some recover after algorithm shifts or seasonal cycles, and some are simply never worth the rewrite effort they'd need. The decision this work supports is narrow and practical: <strong>given a page's recent performance history, which action — protect, rewrite, monitor, improve, or review — deserves attention first?</strong>
   </p>
   <p>
-    Rather than treating this as a black-box prediction problem, the approach here deliberately builds a simple, explainable baseline first, and only introduces a machine learning model to see whether it meaningfully outperforms that baseline on the same evidence. This mirrors how a real content operations team would want to adopt such a system — trusting a rule they can audit before trusting a model they can't.
+    Rather than treating this as a black-box prediction problem, the approach here deliberately builds a simple, explainable baseline first, and only introduces a machine learning model to see whether it meaningfully outperforms that baseline on the same evidence. This mirrors how a real content operations team would want to adopt such a system — trusting a rule they can audit before trusting a model they can't. A later validation pass also turns this same scrutiny back on the model itself, re-testing it under a stricter split and auditing its features for leakage before any recommendation is trusted.
   </p>
 
   <h2 class="section">02 · Data</h2>
@@ -303,6 +303,11 @@
     A <code>GradientBoostingClassifier</code> was trained on the same feature set to predict <code>will_decline</code>, using an 80/20 stratified split. Because the label already draws on a strictly future window relative to the features, the split does not need to be additionally time-ordered — the leakage boundary is enforced at the label-definition stage, not the split stage.
   </p>
 
+  <h3>Validation follow-up: client-grouped split and leakage audit</h3>
+  <p>
+    As a follow-up audit, the same model was re-trained and re-evaluated using a client-grouped split (via <code>GroupShuffleSplit</code>), ensuring no content item from the same client appeared in both train and test sets. This tests whether the original random stratified split's performance was partly inflated by client-level patterns shared across a client's own pages. Separately, every feature's construction window was reviewed against the label window: the behavioral features (<code>clicks_delta_pct</code>, <code>position_delta</code>, <code>ctr_a</code>, <code>ctr_b</code>) are built strictly from windows preceding the label window, with no direct leakage found. Static content attributes (<code>word_count</code>, <code>search_volume</code>, <code>competition_level</code>) carry a directional risk if content was edited in response to already-declining performance; this was checked against content update dates.
+  </p>
+
   <h2 class="section">04 · Results</h2>
 
   <div class="metric-row">
@@ -312,11 +317,11 @@
     </div>
     <div class="metric">
       <div class="num">0.60</div>
-      <div class="label">Model F1 (gradient boosting)</div>
+      <div class="label">Model F1 — random split</div>
     </div>
     <div class="metric">
-      <div class="num">88%</div>
-      <div class="label">Overall model accuracy</div>
+      <div class="num">0.507</div>
+      <div class="label">Model F1 — client-grouped split</div>
     </div>
   </div>
 
@@ -351,7 +356,7 @@
     Recent click-through rate (<code>ctr_b</code>) overwhelmingly dominates the model's decision-making, accounting for more than three-quarters of total feature importance — far ahead of ranking-position movement or click momentum, which the rule-based baseline relies on most heavily. This suggests that <strong>how efficiently a page converts its current visibility into clicks</strong> is a stronger early-warning signal for future decline than the position or click trend itself. Content length is a distant second signal, while raw search volume and competition level contribute comparatively little on their own.
   </p>
   <p>
-    On the identical held-out split, the gradient-boosted model reached an F1 score of <strong>0.60</strong> for the decline class (precision 0.70, recall 0.52, 88% overall accuracy) against a rule-based baseline F1 of <strong>0.154</strong> — nearly a fourfold improvement. The rule-based baseline's low score reflects that momentum-only rules (click and position change) miss most true declines that show up first as a CTR gap rather than a clicks or position swing. This gap is itself a useful finding: it argues for monitoring CTR efficiency as an earlier warning signal, not just raw click or position trend, before a page's traffic visibly drops.
+    On the identical held-out split, the gradient-boosted model reached an F1 score of <strong>0.60</strong> for the decline class (precision 0.70, recall 0.52, 88% overall accuracy) against a rule-based baseline F1 of <strong>0.154</strong>. Under the client-grouped split, the measured F1 was <strong>0.507</strong> — Under the client-grouped split, the measured F1 was 0.507 — lower than the original figure, indicating part of the original score reflected client-level patterns shared across train and test; the grouped-split figure is treated as the more honest estimate of real-world performance.: e.g. "close to the original figure, suggesting the model generalizes across clients rather than memorizing client-specific behavior" or "lower than the original figure, indicating part of the original score reflected client-level patterns shared across train and test; the grouped-split figure is treated as the more honest estimate of real-world performance"]. The rule-based baseline's low score reflects that momentum-only rules (click and position change) miss most true declines that show up first as a CTR gap rather than a clicks or position swing. This gap is itself a useful finding: it argues for monitoring CTR efficiency as an earlier warning signal, not just raw click or position trend, before a page's traffic visibly drops.
   </p>
 
   <h2 class="section">05 · Limitations &amp; Honest Framing</h2>
@@ -362,6 +367,9 @@
   </div>
   <p>
     Additional caveats: the dataset is an unbalanced panel (clients have different history depths), which can bias momentum calculations for newer clients; the 15% decline threshold is a design choice, not a validated business rule; and AI-referral session volume (<code>sessions_ai</code>) was too sparse in this window to model reliably and was excluded from the feature set for that reason. The strong dominance of <code>ctr_b</code> in feature importance also deserves scrutiny rather than uncritical acceptance — since <code>ctr_b</code> is partly derived from the same window as some baseline signals, its outsized weight may partly reflect that overlap rather than genuine predictive superiority. This is flagged here rather than presented as a clean result.
+  </p>
+  <p>
+    A subsequent leakage audit (Section 03) found no direct leakage in the behavioral features, but flagged static content attributes — particularly <code>word_count</code> — as a directional risk if content was edited in response to already-declining performance. A client-grouped re-evaluation (Section 04) is treated as the more conservative, honest estimate of how this model would perform on unseen clients.
   </p>
 
   <h2 class="section">06 · Ranked Recommendations</h2>
@@ -374,11 +382,23 @@
     <li><strong>Deprioritize volatile, low-volume pages:</strong> Where the signal is noisy and search volume is low, review on a longer cycle rather than urgent action.</li>
   </ol>
 
+  <h3>Human review and no-go cases</h3>
+  <p>
+    Every "rewrite" recommendation requires human sign-off before content is edited or retired. Pages with low search volume carry weaker model signal and warrant extra scrutiny. This system is explicitly <strong>not</strong> intended for: automated deletion or unpublishing of content, auto-generated replacement content without editorial approval, use as sole input for client billing or performance conversations, or application to content types or client verticals outside the training data.
+  </p>
+
+  <h3>Monitoring and retrain triggers</h3>
+  <p>
+    Recommended ongoing checks: track what share of "declining"-flagged pages show continued click drops in the following window (live precision tracking against the measured 0.70 baseline); watch for feature-importance drift, particularly in <code>ctr_b</code>'s dominance; and retrain on a quarterly cycle regardless of measured performance, since search behavior shifts over time.
+  </p>
+
   <h2 class="section">07 · Reproducibility</h2>
   <ul>
-    <li>Capstone notebook: <a href="work/capstone_notebook.ipynb">work/capstone_notebook.ipynb</a></li>
+    <li>Model notebook: <a href="work/notebooks/w05_model.ipynb">work/notebooks/w05_model.ipynb</a></li>
+    <li>Validation audit notebook: <a href="work/notebooks/w06_validation_audit.ipynb">work/notebooks/w06_validation_audit.ipynb</a></li>
+    <li>Action playbook notebook: <a href="work/notebooks/w07_action_playbook.ipynb">work/notebooks/w07_action_playbook.ipynb</a></li>
+    <li>Capstone summary notebook: <a href="work/notebooks/capstone.ipynb">work/notebooks/capstone.ipynb</a></li>
     <li>Full repository: <a href="https://github.com/saqib0-cpu/flyrank-ml-internship">github.com/saqib0-cpu/flyrank-ml-internship</a></li>
-    <li>All weekly assignment notebooks are included under <code>work/</code> in the repository above.</li>
   </ul>
 
   <h2 class="section">08 · Acknowledgments &amp; Data Credit</h2>
